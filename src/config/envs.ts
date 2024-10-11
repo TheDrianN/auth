@@ -3,11 +3,13 @@ import * as joi from 'joi'
 
 interface EnvVars{
     PORT: number;
+  
    
 }
 
 const envsSchema = joi.object({
     PORT: joi.number().required(),
+   
     
 })
 
@@ -24,5 +26,6 @@ const EnvVars: EnvVars = value;
 
 export const envs = {
     port: EnvVars.PORT,
+  
    
 };

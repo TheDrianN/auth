@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model chapter {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(255)
+  status     String   @db.Char(1)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @db.Timestamp(0)
+  user       user[]
+}
+
+model user {
+  id            Int      @id @default(autoincrement())
+  chapter_id    Int
+  document      String   @db.VarChar(255)
+  password      String   @db.VarChar(255)
+  status        String   @db.Char(1)
+  rol           String   @db.Char(1)
+  names         String   @db.VarChar(255)
+  surnames      String   @db.VarChar(255)
+  phone         String   @db.VarChar(10)
+  email         String   @db.VarChar(255)
+  date_of_birth DateTime @db.Date
+  code_access   String?  @db.VarChar(255)
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  updated_at    DateTime @db.Timestamp(0)
+  chapter       chapter  @relation(fields: [chapter_id], references: [id], map: "User_chapter_id_fkey")
+
+  @@index([chapter_id], map: "User_chapter_id_fkey")
+}
