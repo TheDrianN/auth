@@ -3,7 +3,11 @@ import * as joi from 'joi'
 
 interface EnvVars{
     PORT: number;
-  
+    SMTP_HOST: string;
+    SMTP_PORT: string;
+    SMTP_USER: string;
+    SMTP_PASS: string;
+    SECRET_KEY: string;
    
 }
 
@@ -26,6 +30,11 @@ const EnvVars: EnvVars = value;
 
 export const envs = {
     port: EnvVars.PORT,
+    smtp_host: EnvVars.SMTP_HOST,
+    smtp_port: EnvVars.SMTP_PORT,
+    smtp_user: EnvVars.SMTP_USER,
+    smtp_pass: EnvVars.SMTP_PASS,
+    secret_key:EnvVars.SECRET_KEY
   
    
 };
