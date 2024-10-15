@@ -101,18 +101,22 @@ export class AuthService  {
   
   }
 
-  async sendEmail(to: string, subject: string, text: string) {
+  async sendEmail(to: string, subject: string, content: string, isHtml: boolean = false) {
     try {
-      const info = await this.transporter.sendMail({
+      const mailOptions = {
         from: envs.smtp_user, // Remitente
         to, // Receptor(es)
         subject, // Asunto del correo
-        text, // Cuerpo del correo
-      });
-
+        [isHtml ? 'html' : 'text']: content, // Usar 'html' si es HTML, 'text' si es texto plano
+      };
+  
+      // Enviar el correo
+      const info = await this.transporter.sendMail(mailOptions);
+  
       return info;
     } catch (error) {
       throw new Error('No se pudo enviar el correo');
     }
   }
+  
 }

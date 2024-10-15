@@ -31,7 +31,7 @@ export class AuthController {
     Equipo de Soporte
   `;
 
-    await this.authService.sendEmail(user.email,'Codigo de verificación',mensaje);
+    await this.authService.sendEmail(user.email,'Codigo de verificación',mensaje,false);
     // Genera el token JWT y retorna la respuesta
     return {
       status:HttpStatus.ACCEPTED,
