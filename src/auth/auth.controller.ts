@@ -65,4 +65,22 @@ export class AuthController {
       throw new Error('Error al enviar el correo'); // Aseguramos que el error se lance adecuadamente
     }
   }
+
+  @MessagePattern('votingconfirmation')
+  async votingconfirmation(@Payload() votingDto: { id: number; message:string}) {
+    
+    const { id,message } = votingDto;
+
+    // Valida las credenciales del usuario
+    const user = await this.authService.getUser(id);
+    if (!user) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    await this.authService.sendEmail(user.email,'Resumen de voto',message);
+
+
+    // Genera el token JWT y retorna la respuesta
+    return this.authService.login(user);
+  }
 }

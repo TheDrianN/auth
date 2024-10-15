@@ -45,6 +45,20 @@ export class AuthService  {
     return user;
   }
 
+  async getUser(id: number): Promise<any> {
+    // Busca al usuario en la base de datos usando Prisma
+    const user = await this.prisma.user.findFirst({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+  
+    return user;
+  }
+
+
   // Método para iniciar sesión y generar el token JWT
   async login(user: any) {
     const payload = { username: user.names +' '+ user.surnames, password: user.password, sub: user.id, role: user.rol };
