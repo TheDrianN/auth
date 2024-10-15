@@ -80,7 +80,7 @@ export class AuthController {
     const formattedMessage = `
       <div style="font-family: Arial, sans-serif; color: #333;">
         <h2 style="color: #4CAF50; text-align: center;">Confirmación de su Voto</h2>
-        <p>Estimado(a) ${user.name},</p>
+        <p>Estimado(a) ${user.names},</p>
         <p>Gracias por participar en las elecciones del Colegio de Ingenieros del Perú. A continuación se presenta un resumen de su voto:</p>
         <hr style="border: 1px solid #4CAF50;" />
         <div style="padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
