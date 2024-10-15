@@ -67,20 +67,40 @@ export class AuthController {
   }
 
   @MessagePattern('votingconfirmation')
-  async votingconfirmation(@Payload() votingDto: { id: number; message:string}) {
-    
-    const { id,message } = votingDto;
-
-    // Valida las credenciales del usuario
+  async votingconfirmation(@Payload() votingDto: { id: number; message: string }) {
+    const { id, message } = votingDto;
+  
+    // Validar las credenciales del usuario
     const user = await this.authService.getUser(id);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
-
-    await this.authService.sendEmail(user.email,'Resumen de voto',message);
-
-
-    // Genera el token JWT y retorna la respuesta
-    return this.authService.login(user);
+  
+    // Crear el mensaje HTML mejorado
+    const formattedMessage = `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color: #4CAF50; text-align: center;">Confirmación de su Voto</h2>
+        <p>Estimado(a) ${user.name},</p>
+        <p>Gracias por participar en las elecciones del Colegio de Ingenieros del Perú. A continuación se presenta un resumen de su voto:</p>
+        <hr style="border: 1px solid #4CAF50;" />
+        <div style="padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
+          ${message.split('\n').map(line => `<p>${line}</p>`).join('')}
+        </div>
+        <hr style="border: 1px solid #4CAF50;" />
+        <p>Si tiene alguna duda o consulta, por favor no dude en contactarnos.</p>
+        <p>Atentamente,</p>
+        <p><strong>Colegio de Ingenieros del Perú - Consejo Departamental de Lambayeque</strong></p>
+      </div>
+    `;
+  
+    // Enviar el correo con el mensaje formateado
+    await this.authService.sendEmail(user.email, 'Resumen de voto', formattedMessage, true);  // true indica que el contenido es HTML
+  
+    // Generar la respuesta con status HTTP
+    return {
+      status: HttpStatus.ACCEPTED,
+      data: 'Envio exitoso',
+    };
   }
+  
 }
