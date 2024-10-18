@@ -61,7 +61,7 @@ export class AuthService  {
 
   // Método para iniciar sesión y generar el token JWT
   async login(user: any) {
-    const payload = { username: user.names +' '+ user.surnames, password: user.password, sub: user.id, role: user.rol };
+    const payload = { username: user.names +' '+ user.surnames,chapter: user.chapter_id, sub: user.id, role: user.rol };
     return {
       access_token: this.jwtService.sign(payload),
     };
