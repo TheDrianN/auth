@@ -74,7 +74,7 @@ export class AuthController {
           .code-box-container{
             width: 100%;
             display: flex;
-           justify-content: center;
+            justify-content: center;
 
           }
         </style>
