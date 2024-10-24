@@ -145,19 +145,57 @@ export class AuthController {
   
     // Crear el mensaje HTML mejorado
     const formattedMessage = `
-      <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2 style="color: #4CAF50; text-align: center;">Confirmación de su Voto</h2>
-        <p>Estimado(a) ${user.names},</p>
-        <p>Gracias por participar en las elecciones del Colegio de Ingenieros del Perú. A continuación se presenta un resumen de su voto:</p>
-        <hr style="border: 1px solid #4CAF50;" />
-        <div style="padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
-          ${message.split('\n').map(line => `<p>${line}</p>`).join('')}
-        </div>
-        <hr style="border: 1px solid #4CAF50;" />
-        <p>Si tiene alguna duda o consulta, por favor no dude en contactarnos.</p>
-        <p>Atentamente,</p>
-        <p><strong>Colegio de Ingenieros del Perú - Consejo Departamental de Lambayeque</strong></p>
-      </div>
+     <div style="font-family: Arial, sans-serif; color: #333; text-align: center; background-color: #f9f9f9; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    
+    <!-- Logo -->
+    <img src="https://www.cip.org.pe/images/LOGO_CIP.png" alt="Logo Colegio de Ingenieros del Perú" style="width: 100px; margin-bottom: 20px;" />
+    
+    <!-- Encabezado -->
+    <h2 style="color: #f44336; font-size: 24px; margin-bottom: 20px;">Confirmación de su Voto</h2>
+    
+    <!-- Cuerpo del mensaje -->
+    <p style="font-size: 16px; color: #555;">Estimado(a) ${user.names},</p>
+    <p style="font-size: 16px; color: #555;">Gracias por participar en las elecciones del Colegio de Ingenieros del Perú. A continuación se presenta un resumen de su voto:</p>
+    
+    <!-- Línea divisoria -->
+    <hr style="border: 1px solid #f44336; margin: 20px 0;" />
+    
+    <!-- Resumen del voto (tabla) -->
+    <div style="padding: 15px; background-color: #f44336; border-radius: 8px; color: #fff;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #fff;">Elección</th>
+            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #fff;">Voto</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${message.split('\n').map(line => {
+            const [eleccion, voto] = line.split(':');
+            return `
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #fff;">${eleccion}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #fff;">${voto}</td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Segunda línea divisoria -->
+    <hr style="border: 1px solid #f44336; margin: 20px 0;" />
+    
+    <!-- Información adicional -->
+    <p style="font-size: 16px; color: #555;">Si tiene alguna duda o consulta, por favor no dude en contactarnos.</p>
+    
+    <!-- Firma -->
+    <p style="font-size: 16px; color: #555;">Atentamente,</p>
+    <p style="font-size: 16px; font-weight: bold; color: #f44336;">Colegio de Ingenieros del Perú - Consejo Departamental de Lambayeque</p>
+  
+  </div>
+</div>
+
     `;
   
     // Enviar el correo con el mensaje formateado
