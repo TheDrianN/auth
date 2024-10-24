@@ -56,6 +56,7 @@ export class AuthController {
             background-color: #ff4b4b;
             color: #ffffff;
             font-size: 22px;
+            width: 25%;
             text-align: center;
             border-radius: 5px;
             letter-spacing: 2px;
@@ -75,7 +76,7 @@ export class AuthController {
           <p>Hemos recibido una solicitud para iniciar sesión en tu cuenta. Tu código de verificación es:</p>
           <div class="code-box">${code}</div>
           <p>Este código es válido por 1 minuto. Si no has solicitado este código, por favor ignora este correo.</p>
-          <p class="footer">Saludos,<br>Equipo de Soporte</p>
+          <p class="footer">Atentamente,<br>Colegio de Ingenieros del Perú</p>
         </div>
       </body>
     </html>
