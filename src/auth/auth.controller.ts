@@ -67,9 +67,16 @@ export class AuthController {
             margin-top: 20px;
             text-align: center;
           }
+          .logo {
+            text-align: center;
+            margin-bottom: 20px;
+          }
         </style>
       </head>
       <body>
+       <div class="logo">
+        <img src="https://www.cip.org.pe/images/LOGO_CIP.png" alt="Logo Colegio de Ingenieros del Perú" width="120">
+      </div>
         <div class="container">
           <h1>Código de Verificación</h1>
           <p>Estimado/a ${user.names},</p>
