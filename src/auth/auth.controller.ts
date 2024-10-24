@@ -20,18 +20,69 @@ export class AuthController {
 
     const code = await this.authService.generateCode();
     const mensaje = `
-    Estimado/a ${user.names}, 
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+          }
+          .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+          }
+          h1 {
+            color: #333333;
+            font-size: 24px;
+          }
+          p {
+            font-size: 16px;
+            color: #666666;
+            line-height: 1.5;
+          }
+          .code-box {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #ff4b4b;
+            color: #ffffff;
+            font-size: 22px;
+            text-align: center;
+            border-radius: 5px;
+            letter-spacing: 2px;
+          }
+          .footer {
+            font-size: 14px;
+            color: #999999;
+            margin-top: 20px;
+            text-align: center;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Código de Verificación</h1>
+          <p>Estimado/a ${user.names},</p>
+          <p>Hemos recibido una solicitud para iniciar sesión en tu cuenta. Tu código de verificación es:</p>
+          <div class="code-box">${code}</div>
+          <p>Este código es válido por 1 minuto. Si no has solicitado este código, por favor ignora este correo.</p>
+          <p class="footer">Saludos,<br>Equipo de Soporte</p>
+        </div>
+      </body>
+    </html>
+    `;
     
-    Hemos recibido una solicitud para iniciar sesión en tu cuenta.
-    Tu código de verificación es: ${code}
-    
-    Este código es válido por 1 minuto. Si no has solicitado este código, por favor ignora este correo.
-    
-    Saludos,
-    Equipo de Soporte
-  `;
 
-    await this.authService.sendEmail(user.email,'Codigo de verificación',mensaje,false);
+    await this.authService.sendEmail(user.email,'Codigo de verificación',mensaje,true);
     // Genera el token JWT y retorna la respuesta
     return {
       status:HttpStatus.ACCEPTED,
