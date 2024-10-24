@@ -71,6 +71,12 @@ export class AuthController {
             text-align: center;
             margin-bottom: 20px;
           }
+          .code-box-container{
+            width: 100%;
+            display: flex;
+           justify-content: center;
+
+          }
         </style>
       </head>
       <body>
@@ -81,7 +87,9 @@ export class AuthController {
           <h1>Código de Verificación</h1>
           <p>Estimado/a ${user.names},</p>
           <p>Hemos recibido una solicitud para iniciar sesión en tu cuenta. Tu código de verificación es:</p>
-          <div class="code-box">${code}</div>
+          <div class="code-box-container">
+              <div class="code-box">${code}</div>
+          </div>
           <p>Este código es válido por 1 minuto. Si no has solicitado este código, por favor ignora este correo.</p>
           <p class="footer">Atentamente,<br>Colegio de Ingenieros del Perú</p>
         </div>
