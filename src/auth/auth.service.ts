@@ -38,7 +38,7 @@ export class AuthService  {
     // Verifica si la contraseña proporcionada coincide con el hash almacenado
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      return false;
     }
 
     // Devuelve el usuario sin el campo de la contraseña
@@ -79,7 +79,6 @@ export class AuthService  {
       where: { id: userId },
       select: { code_access: true }, // Solo obtienes el campo necesario
     });
-  
     const failedAttempts = parseInt(user?.code_access || '0', 10); // Convierte a número, o inicia en 0
     const newAttempts = failedAttempts + 1; // Incrementa
   
@@ -131,6 +130,7 @@ export class AuthService  {
     const secret =  envs.secret_key; // Un "secreto" seguro almacenado en una variable de entorno
     const code = speakeasy.totp({
       secret,
+      encoding: 'ascii', // Asegúrate de que el encoding coincida (cambia según formato del secreto)
       digits: 6, // Número de dígitos del código
       step: 60,  // Validez del código (30 segundos por defecto)
     });
@@ -144,13 +144,17 @@ export class AuthService  {
   
     const verified = speakeasy.totp.verify({
       secret,
-      encoding: 'base32',  // Codificación del secreto
-      token: userCode,     // El código enviado por el usuario
-      window: 1,           // Permitir un margen de tiempo (ejemplo: 1 ventana de 30 segundos antes/después)
+      encoding: 'ascii',  // Codificación del secreto
+      token: userCode, 
+      step: 60,  // El código enviado por el usuario
+      window: 2,           // Permitir un margen de tiempo (ejemplo: 1 ventana de 30 segundos antes/después)
     });
   
     if (!verified) {
-      throw new UnauthorizedException('Código de validación incorrecto o expirado');
+      throw new RpcException({
+        message:'Código de validación incorrecto o expirado.',
+        status: HttpStatus.UNAUTHORIZED
+      });
     }
   
   }

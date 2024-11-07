@@ -1,5 +1,5 @@
 import { Controller, HttpStatus, UnauthorizedException } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 
 
@@ -11,14 +11,19 @@ export class AuthController {
   async validation(@Payload() loginDto: { document: string; password: string }) {
     
     const { document, password } = loginDto;
-
     const user = await this.authService.findUserByDocument(document);
     if (!user) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      return {
+        status:HttpStatus.UNAUTHORIZED,
+        message:'Credenciales inválidas'
+      };
     }
 
     if (user.status ==='B') {
-      throw new UnauthorizedException('La cuenta está bloqueada debido a múltiples intentos fallidos.');
+      throw new RpcException({
+        message:'La cuenta está bloqueada debido a múltiples intentos fallidos.',
+        status: HttpStatus.UNAUTHORIZED
+      });
     }
 
     // Valida las credenciales del usuario
@@ -28,11 +33,17 @@ export class AuthController {
 
       // Verificar si debe bloquear al usuario
       if (parseInt(user.code_access || '0', 10) + 1 >= 5) {
-        await this.authService.blockUser(user.id);
-        throw new UnauthorizedException('Cuenta bloqueada después de múltiples intentos fallidos.');
+        throw new RpcException({
+          message:'Cuenta bloqueada después de múltiples intentos fallidos.',
+          status: HttpStatus.UNAUTHORIZED
+        });
+        
       }
 
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new RpcException({
+        message: 'Credenciales inválidas.',
+        status: HttpStatus.UNAUTHORIZED,
+      });
     }
 
     const code = await this.authService.generateCode();
@@ -124,16 +135,19 @@ export class AuthController {
   }
 
   @MessagePattern('loginAuth')
-  async login(@Payload() loginDto: { document: string; password: string }) {
+  async login(@Payload() loginDto: { document: string; password: string; code_access: string }) {
     
-    const { document, password } = loginDto;
-
+    const { document, password,code_access } = loginDto;
     // Valida las credenciales del usuario
     const user = await this.authService.validateUser(document, password);
-    await this.authService.validateCode(document);
+    await this.authService.validateCode(code_access);
     if (!user) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new RpcException({
+        message:'Credenciales inválidas.',
+        status: HttpStatus.UNAUTHORIZED
+      });
     }
+    await this.authService.resetFailedAttempts(user.id);
 
     // Genera el token JWT y retorna la respuesta
     return this.authService.login(user);
