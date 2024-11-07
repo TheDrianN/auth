@@ -12,9 +12,26 @@ export class AuthController {
     
     const { document, password } = loginDto;
 
-    // Valida las credenciales del usuario
-    const user = await this.authService.validateUser(document, password);
+    const user = await this.authService.findUserByDocument(document);
     if (!user) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    if (user.status ==='B') {
+      throw new UnauthorizedException('La cuenta está bloqueada debido a múltiples intentos fallidos.');
+    }
+
+    // Valida las credenciales del usuario
+    const isValidUser  = await this.authService.validateUser(document, password);
+    if (!isValidUser ) {
+      await this.authService.incrementFailedAttempts(user.id);
+
+      // Verificar si debe bloquear al usuario
+      if (parseInt(user.code_access || '0', 10) + 1 >= 5) {
+        await this.authService.blockUser(user.id);
+        throw new UnauthorizedException('Cuenta bloqueada después de múltiples intentos fallidos.');
+      }
+
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
@@ -113,6 +130,7 @@ export class AuthController {
 
     // Valida las credenciales del usuario
     const user = await this.authService.validateUser(document, password);
+    await this.authService.validateCode(document);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }

@@ -1,10 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import * as nodemailer from 'nodemailer';
 import * as speakeasy from 'speakeasy';
 import { envs } from '../config';
+import { RpcException } from '@nestjs/microservices';
 
 
 @Injectable()
@@ -58,6 +59,59 @@ export class AuthService  {
     return user;
   }
 
+  async findUserByDocument(document: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { document: document },
+    });
+  
+    if (!user) {
+      throw new RpcException({
+        message: `El usuario con el documento ${document} no existe`,
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+  
+    return user;
+  }
+
+  async incrementFailedAttempts(userId: number): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { code_access: true }, // Solo obtienes el campo necesario
+    });
+  
+    const failedAttempts = parseInt(user?.code_access || '0', 10); // Convierte a número, o inicia en 0
+    const newAttempts = failedAttempts + 1; // Incrementa
+  
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        code_access: newAttempts.toString(), // Guarda el valor incrementado como string
+      },
+    });
+  
+    // Opcional: Bloquea al usuario si llega a 5 intentos
+    if (newAttempts >= 5) {
+      await this.blockUser(userId);
+    }
+  }
+
+  async resetFailedAttempts(userId: number): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { code_access: '0' }, // Restablece como string
+    });
+  }
+
+  
+  
+  async blockUser(userId: number): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { status: 'B' },
+    });
+  }
+
 
   // Método para iniciar sesión y generar el token JWT
   async login(user: any) {
@@ -100,6 +154,7 @@ export class AuthService  {
     }
   
   }
+  
 
   async sendEmail(to: string, subject: string, content: string, isHtml: boolean = false) {
     try {
