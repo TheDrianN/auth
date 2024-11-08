@@ -11,7 +11,10 @@ export class AuthController {
   async validation(@Payload() loginDto: { document: string; password: string }) {
     
     const { document, password } = loginDto;
+    console.log(loginDto);
     const user = await this.authService.findUserByDocument(document);
+    console.log(user);
+
     if (!user) {
       return {
         status:HttpStatus.UNAUTHORIZED,
