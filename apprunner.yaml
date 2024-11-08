@@ -15,7 +15,7 @@ run:
     port: 3000
   env:
       - name: PORT_MC
-        value: "3002"
+        value: 3002
       - name: SECRET_KEY
         value: "RZD64TWT7WOG6KDUMHRJZTCOFM"
       - name: SMTP_HOST
