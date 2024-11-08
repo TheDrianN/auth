@@ -12,7 +12,7 @@ build:
 run:
   command: npm run start:prod
   network:
-    port: 3000
+    port: 3002
   env:
       - name: PORT_MC
         value: 3002
