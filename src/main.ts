@@ -16,6 +16,17 @@ async function bootstrap() {
     }
   );
   console.log("Port2",envs.port);
+  console.log("SECRET_KEY",envs.secret_key);
+
+  console.log("SMTP_HOST",envs.smtp_host);
+
+  console.log("SMTP_PORT",envs.smtp_port);
+
+  console.log("SMTP_USER",envs.smtp_user);
+  console.log("SMTP_PASS",envs.smtp_pass);
+  console.log("FIREBASE_CREDENTIALS_PATH",envs.port);
+
+
 
   app.useGlobalPipes(
     new ValidationPipe({

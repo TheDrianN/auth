@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
@@ -9,10 +9,12 @@ import { RpcException } from '@nestjs/microservices';
 
 
 @Injectable()
-export class AuthService  {
-  private prisma = new PrismaClient();
+export class AuthService extends PrismaClient implements OnModuleInit  {
+ 
   private transporter;
+
   constructor(private readonly jwtService: JwtService) {
+    super(); // Llamada al constructor de PrismaClient
     this.transporter = nodemailer.createTransport({
       host: envs.smtp_host , // Usa variables de entorno para mayor seguridad
       port: Number(envs.smtp_port),
@@ -24,10 +26,16 @@ export class AuthService  {
     });
   }
 
+  async onModuleInit() {
+    await this.$connect();
+    console.log('Database connected');
+  }
+
   // Método para validar credenciales de usuario
   async validateUser(document: string, password: string): Promise<any> {
+    console.log(document);
     // Busca al usuario en la base de datos usando Prisma
-    const user = await this.prisma.user.findFirst({
+    const user = await this.user.findFirst({
       where: { document },
     });
 
@@ -48,7 +56,7 @@ export class AuthService  {
 
   async getUser(id: number): Promise<any> {
     // Busca al usuario en la base de datos usando Prisma
-    const user = await this.prisma.user.findFirst({
+    const user = await this.user.findFirst({
       where: { id },
     });
 
@@ -60,7 +68,7 @@ export class AuthService  {
   }
 
   async findUserByDocument(document: string) {
-    const user = await this.prisma.user.findFirst({
+    const user = await this.user.findFirst({
       where: { document: document },
     });
   
@@ -75,14 +83,14 @@ export class AuthService  {
   }
 
   async incrementFailedAttempts(userId: number): Promise<void> {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.user.findUnique({
       where: { id: userId },
       select: { code_access: true }, // Solo obtienes el campo necesario
     });
     const failedAttempts = parseInt(user?.code_access || '0', 10); // Convierte a número, o inicia en 0
     const newAttempts = failedAttempts + 1; // Incrementa
   
-    await this.prisma.user.update({
+    await this.user.update({
       where: { id: userId },
       data: {
         code_access: newAttempts.toString(), // Guarda el valor incrementado como string
@@ -96,7 +104,7 @@ export class AuthService  {
   }
 
   async resetFailedAttempts(userId: number): Promise<void> {
-    await this.prisma.user.update({
+    await this.user.update({
       where: { id: userId },
       data: { code_access: '0' }, // Restablece como string
     });
@@ -105,7 +113,7 @@ export class AuthService  {
   
   
   async blockUser(userId: number): Promise<void> {
-    await this.prisma.user.update({
+    await this.user.update({
       where: { id: userId },
       data: { status: 'B' },
     });
@@ -147,7 +155,7 @@ export class AuthService  {
       encoding: 'ascii',  // Codificación del secreto
       token: userCode, 
       step: 60,  // El código enviado por el usuario
-      window: 2,           // Permitir un margen de tiempo (ejemplo: 1 ventana de 30 segundos antes/después)
+      window: 1,           // Permitir un margen de tiempo (ejemplo: 1 ventana de 30 segundos antes/después)
     });
   
     if (!verified) {

@@ -1,0 +1,6 @@
+# Ignorar node_modules y archivos innecesarios
+node_modules
+.git
+.DS_Store
+.env.template
+dist
